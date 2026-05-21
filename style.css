@@ -1,1 +1,170 @@
 
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #0f001f, #1a0033);
+    color: white;
+    overflow: hidden;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    background: rgba(0, 0, 0, 0.7);
+    padding: 40px 60px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 0 30px rgba(138, 43, 226, 0.5);
+    border: 2px solid #8a2be2;
+    max-width: 420px;
+    width: 100%;
+}
+
+h1 {
+    font-size: 3.5rem;
+    margin-bottom: 30px;
+    background: linear-gradient(to right, #ff00cc, #00ffff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 20px rgba(138, 43, 226, 0.8);
+}
+
+.tab {
+    display: flex;
+    margin-bottom: 25px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #8a2be2;
+}
+
+.tab button {
+    flex: 1;
+    padding: 14px;
+    background: #2a0055;
+    color: white;
+    border: none;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.tab button:hover {
+    background: #8a2be2;
+}
+
+.tab button:active {
+    background: #00ffff;
+    color: black;
+}
+
+/* Forms */
+input {
+    width: 100%;
+    padding: 15px;
+    margin: 12px 0;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid #8a2be2;
+    border-radius: 10px;
+    color: white;
+    font-size: 1.1rem;
+    outline: none;
+    transition: 0.3s;
+}
+
+input:focus {
+    border-color: #00ffff;
+    box-shadow: 0 0 12px rgba(0, 255, 255, 0.4);
+}
+
+button {
+    width: 100%;
+    padding: 16px;
+    margin-top: 10px;
+    background: linear-gradient(to right, #8a2be2, #00ffff);
+    color: black;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(138, 43, 226, 0.4);
+}
+
+/* ==================== GAME HUD ==================== */
+
+.hud {
+    position: absolute;
+    top: 15px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 30px;
+    z-index: 100;
+    font-size: 1.3rem;
+    font-weight: bold;
+    text-shadow: 0 0 10px black;
+}
+
+.hud button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    width: auto;
+    margin-left: 10px;
+}
+
+/* Game Over */
+#gameOver {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.95);
+    padding: 40px 60px;
+    border-radius: 20px;
+    text-align: center;
+    border: 3px solid #ff0044;
+    box-shadow: 0 0 40px rgba(255, 0, 68, 0.7);
+    z-index: 200;
+}
+
+#gameOver h2 {
+    font-size: 3rem;
+    color: #ff0044;
+    margin-bottom: 15px;
+    text-shadow: 0 0 15px #ff0044;
+}
+
+/* Canvas */
+#gameCanvas {
+    border: 4px solid #8a2be2;
+    border-radius: 15px;
+    box-shadow: 0 0 35px rgba(138, 43, 226, 0.6);
+    background: #000;
+}
+
+/* Responsivo */
+@media (max-width: 900px) {
+    .hud {
+        font-size: 1.1rem;
+        padding: 0 15px;
+    }
+
+    #gameCanvas {
+        width: 95%;
+        height: auto;
+    }
+}
