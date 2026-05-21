@@ -1,1 +1,148 @@
 
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for
+import sqlite3
+import json
+from datetime import datetime
+import os
+
+app = Flask(__name__)
+app.secret_key = "supersecretkey123"
+
+# Banco de dados
+def init_db():
+    conn = sqlite3.connect('users.db')
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS users (
+                 id INTEGER PRIMARY KEY,
+                 username TEXT UNIQUE,
+                 password TEXT,
+                 coins INTEGER DEFAULT 0,
+                 high_score INTEGER DEFAULT 0,
+                 current_skin TEXT DEFAULT "default",
+                 skins_unlocked TEXT DEFAULT '["default"]')''')
+    
+    c.execute('''CREATE TABLE IF NOT EXISTS ranking (
+                 id INTEGER PRIMARY KEY,
+                 username TEXT,
+                 score INTEGER,
+                 date TEXT)''')
+    conn.commit()
+    conn.close()
+
+init_db()
+
+@app.route('/')
+def home():
+    if 'user' in session:
+        return redirect(url_for('game_page'))
+    return render_template('login.html')
+
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.json
+    conn = sqlite3.connect('users.db')
+    c = conn.cursor()
+    c.execute("SELECT * FROM users WHERE username=? AND password=?", 
+              (data['username'], data['password']))
+    user = c.fetchone()
+    conn.close()
+    
+    if user:
+        session['user'] = data['username']
+        return jsonify({"success": True})
+    return jsonify({"success": False, "message": "Usuário ou senha incorretos"})
+
+@app.route('/register', methods=['POST'])
+def register():
+    data = request.json
+    conn = sqlite3.connect('users.db')
+    c = conn.cursor()
+    try:
+        c.execute("INSERT INTO users (username, password) VALUES (?, ?)", 
+                  (data['username'], data['password']))
+        conn.commit()
+        session['user'] = data['username']
+        return jsonify({"success": True})
+    except:
+        return jsonify({"success": False, "message": "Usuário já existe"})
+    finally:
+        conn.close()
+
+@app.route('/game')
+def game_page():
+    if 'user' not in session:
+        return redirect('/')
+    return render_template('game.html')
+
+@app.route('/save_score', methods=['POST'])
+def save_score():
+    if 'user' not in session:
+        return jsonify({"success": False})
+    
+    data = request.json
+    score = data['score']
+    
+    conn = sqlite3.connect('users.db')
+    c = conn.cursor()
+    
+    # Atualiza high score
+    c.execute("UPDATE users SET high_score = MAX(high_score, ?) WHERE username=?", 
+              (score, session['user']))
+    
+    # Salva no ranking
+    c.execute("INSERT INTO ranking (username, score, date) VALUES (?, ?, ?)",
+              (session['user'], score, datetime.now().strftime("%Y-%m-%d")))
+    
+    conn.commit()
+    conn.close()
+    return jsonify({"success": True})
+
+@app.route('/get_user_data')
+def get_user_data():
+    if 'user' not in session:
+        return jsonify({"success": False})
+    
+    conn = sqlite3.connect('users.db')
+    c = conn.cursor()
+    c.execute("SELECT coins, high_score, current_skin, skins_unlocked FROM users WHERE username=?", 
+              (session['user'],))
+    data = c.fetchone()
+    conn.close()
+    
+    return jsonify({
+        "username": session['user'],
+        "coins": data[0],
+        "high_score": data[1],
+        "current_skin": data[2],
+        "skins_unlocked": json.loads(data[3])
+    })
+
+@app.route('/change_skin', methods=['POST'])
+def change_skin():
+    if 'user' not in session:
+        return jsonify({"success": False})
+    
+    skin = request.json['skin']
+    conn = sqlite3.connect('users.db')
+    c = conn.cursor()
+    c.execute("UPDATE users SET current_skin = ? WHERE username=?", (skin, session['user']))
+    conn.commit()
+    conn.close()
+    return jsonify({"success": True})
+
+@app.route('/ranking')
+def get_ranking():
+    conn = sqlite3.connect('users.db')
+    c = conn.cursor()
+    c.execute("SELECT username, score, date FROM ranking ORDER BY score DESC LIMIT 10")
+    ranking = c.fetchall()
+    conn.close()
+    return jsonify([{"player": r[0], "score": r[1], "date": r[2]} for r in ranking])
+
+@app.route('/logout')
+def logout():
+    session.pop('user', None)
+    return redirect('/')
+
+if __name__ == '__main__':
+    app.run(debug=True)
