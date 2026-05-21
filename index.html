@@ -1,1 +1,98 @@
 
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Runner Kaio - Login</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>RUNNER KAIO</h1>
+
+        <div class="tab">
+            <button onclick="showTab(0)">Login</button>
+            <button onclick="showTab(1)">Cadastro</button>
+        </div>
+
+        <div id="loginForm">
+            <input type="text" id="loginUser" placeholder="Usuário" required>
+            <input type="password" id="loginPass" placeholder="Senha" required>
+            <button onclick="login()">Entrar</button>
+        </div>
+
+        <div id="registerForm" style="display:none;">
+            <input type="text" id="regUser" placeholder="Usuário" required>
+            <input type="password" id="regPass" placeholder="Senha" required>
+            <button onclick="register()">Cadastrar</button>
+        </div>
+    </div>
+
+    <script>
+        function showTab(n) {
+            document.getElementById('loginForm').style.display = n === 0 ? 'block' : 'none';
+            document.getElementById('registerForm').style.display = n === 1 ? 'block' : 'none';
+        }
+
+        async function login() {
+            const res = await fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: document.getElementById('loginUser').value,
+                    password: document.getElementById('loginPass').value
+                })
+            });
+            const data = await res.json();
+            if (data.success) location.href = '/game';
+            else alert(data.message);
+        }
+
+        async function register() {
+            const res = await fetch('/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: document.getElementById('regUser').value,
+                    password: document.getElementById('regPass').value
+                })
+            });
+            const data = await res.json();
+            if (data.success) location.href = '/game';
+            else alert(data.message);
+        }
+    </script>
+</body>
+
+</html><!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Runner Kaio</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <div class="hud">
+        <div>Score: <span id="score">0</span></div>
+        <div>Moedas: <span id="coins">0</span></div>
+        <button onclick="changeSkin()">Trocar Skin</button>
+        <button onclick="location.href='/logout'">Sair</button>
+    </div>
+
+    <canvas id="gameCanvas" width="800" height="500"></canvas>
+
+    <div id="gameOver" style="display:none;">
+        <h2>Game Over</h2>
+        <p>Score: <span id="finalScore">0</span></p>
+        <button onclick="restart()">Jogar Novamente</button>
+        <button onclick="location.href='/'">Menu</button>
+    </div>
+
+    <script src="/static/js/game.js"></script>
+</body>
+
+</html>
